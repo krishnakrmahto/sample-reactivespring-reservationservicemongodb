@@ -1,7 +1,11 @@
 package com.sampleprojects.reactive.reservationservicemongodb.service;
 
+import com.sampleprojects.reactive.reservationservicemongodb.api.server.response.ReservationDetailsResponse;
 import com.sampleprojects.reactive.reservationservicemongodb.entity.Reservation;
 import com.sampleprojects.reactive.reservationservicemongodb.repository.ReservationRepository;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -17,9 +21,14 @@ public class SampleReservationService {
 
   private final ReservationRepository repository;
 
-
   public Publisher<Reservation> getAllReservations() {
     return repository.findAll();
+  }
+
+  public Publisher<ReservationDetailsResponse> getReservationDetailStream() {
+    return Flux.fromStream(Stream.generate(LocalDateTime::now))
+        .map(time -> ReservationDetailsResponse.builder().name("Krishna").time(time).build())
+        .delayElements(Duration.ofSeconds(1));
   }
 
   @EventListener(ApplicationStartedEvent.class)
